@@ -14,16 +14,185 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      mobilized_voters: {
+        Row: {
+          created_at: string
+          destination_school: string | null
+          dni: string
+          full_name: string
+          id: string
+          organization_id: string
+          phone: string | null
+          registered_by_dirigente_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination_school?: string | null
+          dni: string
+          full_name: string
+          id?: string
+          organization_id: string
+          phone?: string | null
+          registered_by_dirigente_id: string
+        }
+        Update: {
+          created_at?: string
+          destination_school?: string | null
+          dni?: string
+          full_name?: string
+          id?: string
+          organization_id?: string
+          phone?: string | null
+          registered_by_dirigente_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobilized_voters_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mobilized_voters_registered_by_dirigente_id_fkey"
+            columns: ["registered_by_dirigente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          dni: string | null
+          full_name: string
+          id: string
+          operating_barrio: string | null
+          organization_id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          dni?: string | null
+          full_name: string
+          id: string
+          operating_barrio?: string | null
+          organization_id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          dni?: string | null
+          full_name?: string
+          id?: string
+          operating_barrio?: string | null
+          organization_id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          assigned_dirigente_id: string | null
+          capacity: number | null
+          created_at: string
+          description: string | null
+          id: string
+          license_plate: string
+          organization_id: string
+          status: Database["public"]["Enums"]["vehicle_status"]
+        }
+        Insert: {
+          assigned_dirigente_id?: string | null
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          license_plate: string
+          organization_id: string
+          status?: Database["public"]["Enums"]["vehicle_status"]
+        }
+        Update: {
+          assigned_dirigente_id?: string | null
+          capacity?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          license_plate?: string
+          organization_id?: string
+          status?: Database["public"]["Enums"]["vehicle_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_assigned_dirigente_id_fkey"
+            columns: ["assigned_dirigente_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_organization_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "dirigente" | "superadmin"
+      vehicle_status:
+        | "disponible"
+        | "en_viaje"
+        | "en_mantenimiento"
+        | "inactivo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +319,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "dirigente", "superadmin"],
+      vehicle_status: [
+        "disponible",
+        "en_viaje",
+        "en_mantenimiento",
+        "inactivo",
+      ],
+    },
   },
 } as const
