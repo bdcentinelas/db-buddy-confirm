@@ -4,11 +4,13 @@ import { useAuth } from '@/contexts/AuthContext';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: 'admin' | 'dirigente' | 'superadmin';
+  allowedRoles?: ('admin' | 'dirigente' | 'superadmin')[];
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requiredRole 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredRole,
+  allowedRoles
 }) => {
   const { user, profile, loading } = useAuth();
   const location = useLocation();
@@ -28,6 +30,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (requiredRole && profile.role !== requiredRole) {
     // User doesn't have required role
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-destructive mb-2">Acceso Denegado</h1>
+          <p className="text-muted-foreground">No tienes permisos para acceder a esta sección.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (allowedRoles && !allowedRoles.includes(profile.role)) {
+    // User doesn't have any of the allowed roles
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
