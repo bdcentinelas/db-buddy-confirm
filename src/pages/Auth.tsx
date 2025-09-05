@@ -13,10 +13,11 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const { signInWithPassword, user } = useAuth();
+  const { signInWithPassword, signUp, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -40,17 +41,43 @@ const Auth = () => {
       return;
     }
 
+    if (!isLogin && !fullName) {
+      setError('Por favor, ingresa tu nombre completo');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { error } = await signInWithPassword(email, password);
-      
-      if (error) {
-        setError(getErrorMessage(error.message));
+      if (isLogin) {
+        const { error } = await signInWithPassword(email, password);
+        
+        if (error) {
+          setError(getErrorMessage(error.message));
+        } else {
+          toast({
+            title: "¡Bienvenido!",
+            description: "Has iniciado sesión correctamente.",
+          });
+          navigate(from, { replace: true });
+        }
       } else {
-        toast({
-          title: "¡Bienvenido!",
-          description: "Has iniciado sesión correctamente.",
+        // Registro de nuevo usuario
+        const { error } = await signUp(email, password, {
+          full_name: fullName,
+          organization_id: '00000000-0000-0000-0000-000000000000', // Default organization
+          role: 'dirigente'
         });
-        navigate(from, { replace: true });
+        
+        if (error) {
+          setError(getErrorMessage(error.message));
+        } else {
+          toast({
+            title: "¡Registro exitoso!",
+            description: "Tu cuenta ha sido creada. Inicia sesión para continuar.",
+          });
+          setIsLogin(true); // Switch to login mode
+          setPassword(''); // Clear password for security
+        }
       }
     } catch (error) {
       setError('Error inesperado. Por favor, intenta nuevamente.');
@@ -68,6 +95,15 @@ const Auth = () => {
     }
     if (errorMessage.includes('Too many requests')) {
       return 'Demasiados intentos. Espera unos minutos antes de volver a intentar.';
+    }
+    if (errorMessage.includes('User already registered')) {
+      return 'Este email ya está registrado. Intenta iniciar sesión.';
+    }
+    if (errorMessage.includes('Password should be at least')) {
+      return 'La contraseña debe tener al menos 6 caracteres.';
+    }
+    if (errorMessage.includes('Invalid email')) {
+      return 'El formato del email no es válido.';
     }
     return 'Error de autenticación. Por favor, intenta nuevamente.';
   };
@@ -114,6 +150,21 @@ const Auth = () => {
                 />
               </div>
 
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Nombre completo</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Tu nombre completo"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    disabled={loading}
+                    className="h-12"
+                  />
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="password">Contraseña</Label>
                 <Input
@@ -125,6 +176,11 @@ const Auth = () => {
                   disabled={loading}
                   className="h-12"
                 />
+                {!isLogin && (
+                  <p className="text-xs text-muted-foreground">
+                    La contraseña debe tener al menos 6 caracteres
+                  </p>
+                )}
               </div>
 
               <Button 
