@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Users, Car, Vote, Settings, LogOut, UserCheck, Activity, MapPin, MessageSquare } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import AIAssistantChat from '@/components/AIAssistantChat';
+import { useNotifier } from '@/hooks/useNotifier';
 
 interface MobilizedVoter {
   id: string;
